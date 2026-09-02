@@ -46,7 +46,7 @@ top_genres = genres.value_counts().head(10)
 # CALCULS AVEC NUMPY
 # ============================================================
 
-# Nombre total d'occurrences dans le Top 10
+# Nombre total d'occurrences des 10 genres principaux
 total_top_genres = np.sum(top_genres.values)
 
 
@@ -62,6 +62,15 @@ genres_analyse = pd.DataFrame({
     "Occurrences": top_genres.values,
     "Pourcentage": np.round(pourcentages, 2)
 })
+
+
+# ============================================================
+# INFORMATIONS PRINCIPALES
+# ============================================================
+
+genre_principal = genres_analyse.iloc[0]["Genre"]
+nombre_principal = genres_analyse.iloc[0]["Occurrences"]
+pourcentage_principal = genres_analyse.iloc[0]["Pourcentage"]
 
 
 # ============================================================
@@ -88,24 +97,20 @@ st.markdown(
         color: #E6E6E6;
     }
 
-    /* En-tête de section */
-    .section-header {
-        background: linear-gradient(
-            135deg,
-            #8E24AA,
-            #3949AB
-        );
-        padding: 12px 20px;
-        border-radius: 10px;
-        margin-top: 25px;
-        margin-bottom: 15px;
+    /* Métriques */
+    [data-testid="stMetric"] {
+        background-color: #1E1E1E;
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid #333333;
     }
 
-    .section-title {
-        color: #FFFFFF;
-        font-size: 22px;
-        font-weight: bold;
-        margin: 0;
+    [data-testid="stMetricLabel"] {
+        color: #BDBDBD !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
     }
 
     </style>
@@ -130,16 +135,13 @@ st.write(
 # INDICATEURS
 # ============================================================
 
-genre_principal = genres_analyse.iloc[0]["Genre"]
-nombre_principal = genres_analyse.iloc[0]["Occurrences"]
-pourcentage_principal = genres_analyse.iloc[0]["Pourcentage"]
+st.subheader("📊 En quelques chiffres")
 
 
 col1, col2 = st.columns(2)
 
 
 with col1:
-
     st.metric(
         "🎵 Genre le plus représenté",
         genre_principal
@@ -147,9 +149,8 @@ with col1:
 
 
 with col2:
-
     st.metric(
-        "📊 Nombre d'occurrences",
+        "📈 Nombre d'occurrences",
         nombre_principal
     )
 
@@ -158,16 +159,7 @@ with col2:
 # TREEMAP
 # ============================================================
 
-st.markdown(
-    """
-    <div class="section-header">
-        <div class="section-title">
-            🎨 Top 10 des genres les plus représentés
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.subheader("🌈 Top 10 des genres les plus représentés")
 
 
 fig = px.treemap(
@@ -176,11 +168,12 @@ fig = px.treemap(
     values="Occurrences",
     color="Occurrences",
     color_continuous_scale=[
-        "#3949AB",
-        "#5E35B1",
-        "#8E24AA",
-        "#D81B60",
-        "#F4511E"
+        "#00C853",
+        "#00BFA5",
+        "#2979FF",
+        "#651FFF",
+        "#AA00FF",
+        "#F50057"
     ],
     hover_data={
         "Occurrences": True,
@@ -189,15 +182,22 @@ fig = px.treemap(
 )
 
 
+# Texte du treemap
 fig.update_traces(
     textinfo="label+value+percent entry",
     textfont=dict(
         color="white",
         size=16
+    ),
+    hovertemplate=(
+        "<b>%{label}</b><br>"
+        "Occurrences : %{value}<br>"
+        "<extra></extra>"
     )
 )
 
 
+# Style du graphique
 fig.update_layout(
     height=600,
     paper_bgcolor="#121212",
@@ -210,6 +210,15 @@ fig.update_layout(
         l=10,
         r=10,
         b=10
+    ),
+    coloraxis_colorbar=dict(
+        title="Occurrences",
+        tickfont=dict(
+            color="white"
+        ),
+        title_font=dict(
+            color="white"
+        )
     )
 )
 
@@ -221,35 +230,28 @@ st.plotly_chart(
 
 
 # ============================================================
-# TABLEAU
+# TABLEAU DÉTAILLÉ
 # ============================================================
 
-st.markdown(
-    """
-    <div class="section-header">
-        <div class="section-title">
-            📋 Détail des genres
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.subheader("📋 Détail des genres")
 
 
 st.dataframe(
     genres_analyse,
-    use_container_width=True
+    use_container_width=True,
+    hide_index=True
 )
 
 
 # ============================================================
-# POURCENTAGE DU GENRE PRINCIPAL
+# INFORMATIONS
 # ============================================================
 
 st.info(
-    f"💡 **{genre_principal}** représente "
+    f"💡 **{genre_principal}** est le genre le plus représenté "
+    f"avec **{nombre_principal} occurrences**, soit "
     f"**{pourcentage_principal:.2f} %** des occurrences "
-    "du Top 10 des genres."
+    "du Top 10."
 )
 
 
@@ -258,6 +260,7 @@ st.info(
 # ============================================================
 
 st.subheader("💡 Conclusion")
+
 
 st.write(
     f"Le genre le plus représenté dans notre dataset est "
